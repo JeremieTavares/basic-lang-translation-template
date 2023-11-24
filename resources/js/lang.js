@@ -1,5 +1,5 @@
 // Function to update content based on selected language
-function updateContent(langData) {
+const updateContent = (langData) => {
     document.querySelectorAll('[data-i18n]').forEach(element => {
         const key = element.getAttribute('data-i18n');
         element.textContent = langData[key];
@@ -8,32 +8,46 @@ function updateContent(langData) {
 
 
 // Function to set the language preference
-function setLanguagePreference(lang) {
+const setLanguagePreference = (lang) => {
     localStorage.setItem('language', lang);
     // location.reload();
 }
 
 
 // Function to fetch language data
-async function fetchLanguageData(lang) {
+const fetchLanguageData = async (lang) => {
     const response = await fetch(`lang/${lang}.json`);
     return await response.json();
 }
 
 
 // Function to change language
-async function changeLanguage(lang) {
-    await setLanguagePreference(lang);
+const changeLanguage = async (lang) => {
+    setLanguagePreference(lang);
 
     const langData = await fetchLanguageData(lang);
     updateContent(langData);
-    toggleArabicStylesheet(lang); // Toggle Arabic stylesheet
 }
 
-// Call updateContent() on page load
-window.addEventListener('DOMContentLoaded', async () => {
-    const userPreferredLanguage = localStorage.getItem('language') || 'en';
-    const langData = await fetchLanguageData(userPreferredLanguage);
-    updateContent(langData);
-    toggleArabicStylesheet(userPreferredLanguage);
-});
+// When page loads, get the language preference from local storage
+const onLoadGetLanguage = async () => {
+    window.addEventListener('DOMContentLoaded', async () => {
+        const userPreferredLanguage = localStorage.getItem('language') || 'en';
+        const langData = await fetchLanguageData(userPreferredLanguage);
+        updateContent(langData);
+    });
+}
+
+// When user clicks on language button, change the language
+const onClickSetLanguage = () => {
+    // Call changeLanguage() on language change
+    document.querySelectorAll('[data-set-lang]').forEach(element => {
+        element.addEventListener('click', async () => {
+            const lang = element.getAttribute('data-set-lang');
+            changeLanguage(lang);
+        });
+    });
+}
+
+onLoadGetLanguage();
+onClickSetLanguage();
